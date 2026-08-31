@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Button } from './components/ui/button'
 import { BookOpen, User, Mail, Lock, BookMarked, TrendingUp, BookOpenCheck, X, Edit, Trash2 } from 'lucide-react'
@@ -113,9 +113,9 @@ function LoginPage() {
         <div className="mt-6 text-center">
           <p className="text-white/80 text-sm">
             Não tem uma conta?{' '}
-            <a href="/register" className="text-white font-semibold hover:underline transition-all">
+            <Link to="/register" className="text-white font-semibold hover:underline transition-all">
               Cadastre-se grátis
-            </a>
+            </Link>
           </p>
         </div>
       </div>
@@ -253,9 +253,9 @@ function RegisterPage() {
         <div className="mt-6 text-center">
           <p className="text-white/80 text-sm">
             Já tem uma conta?{' '}
-            <a href="/login" className="text-white font-semibold hover:underline transition-all">
+            <Link to="/login" className="text-white font-semibold hover:underline transition-all">
               Entrar
-            </a>
+            </Link>
           </p>
         </div>
       </div>

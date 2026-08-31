@@ -31,7 +31,8 @@ api.interceptors.response.use(
       // Token inválido ou expirado
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // BASE_URL já inclui o basename do GitHub Pages (ex: /bookshelf-frontend/)
+      window.location.href = `${import.meta.env.BASE_URL}login`;
     }
     return Promise.reject(error);
   }
