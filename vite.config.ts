@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
+  // GitHub Pages serve o app em https://bookshelf-web.github.io/bookshelf-frontend/
+  base: '/bookshelf-frontend/',
   plugins: [react()],
   resolve: {
     alias: {

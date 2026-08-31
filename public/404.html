@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BookShelf</title>
+    <script>
+      // GitHub Pages não suporta client-side routing nativamente.
+      // Redireciona qualquer rota desconhecida de volta pro index,
+      // preservando o path para o BrowserRouter assumir a navegação.
+      var basePath = '/bookshelf-frontend';
+      sessionStorage.redirect = location.pathname.slice(basePath.length) + location.search + location.hash;
+      location.replace(basePath + '/');
+    </script>
+  </head>
+  <body></body>
+</html>

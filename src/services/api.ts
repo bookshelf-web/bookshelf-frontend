@@ -1,10 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // Usa caminho relativo para que o proxy do Vite encaminhe as chamadas
-  // corretamente tanto em desenvolvimento local quanto no Docker CI.
-  // O Vite proxy redireciona /api → VITE_API_URL (backend container ou localhost)
-  baseURL: '/api', // proxy do Vite encaminha para o backend correto
+  // Em dev/Docker usa caminho relativo (proxy do Vite encaminha /api → VITE_API_URL).
+  // Em produção (GitHub Pages) não há proxy, então bate direto na API hospedada.
+  baseURL: import.meta.env.PROD ? `${import.meta.env.VITE_API_URL}/api` : '/api',
   headers: {
     'Content-Type': 'application/json',
   },

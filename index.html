@@ -8,6 +8,16 @@
     <title>BookShelf - Biblioteca Pessoal</title>
   </head>
   <body>
+    <script>
+      // Restaura a rota original salva pelo fallback 404.html do GitHub Pages
+      (function () {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect) {
+          history.replaceState(null, '', location.pathname.replace(/\/$/, '') + redirect);
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
