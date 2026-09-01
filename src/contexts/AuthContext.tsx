@@ -14,11 +14,26 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+function persistSession(user: User | undefined, token: string | undefined): void {
+  // Evita gravar a string "undefined" quando a resposta vier incompleta
+  if (user) localStorage.setItem('user', JSON.stringify(user))
+  if (token) localStorage.setItem('token', token)
+}
+
+function readStoredUser(): User | null {
+  const savedUser = localStorage.getItem('user')
+  if (!savedUser) return null
+  try {
+    return JSON.parse(savedUser) as User
+  } catch {
+    // Valor corrompido (ex: "undefined" gravado por engano) — limpa e segue
+    localStorage.removeItem('user')
+    return null
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('user')
-    return savedUser ? JSON.parse(savedUser) : null
-  })
+  const [user, setUser] = useState<User | null>(readStoredUser)
   
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token')
@@ -32,10 +47,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       setUser(response.user)
       setToken(response.token)
-      
-      localStorage.setItem('user', JSON.stringify(response.user))
-      localStorage.setItem('token', response.token)
-      
+
+      persistSession(response.user, response.token)
+
       navigate('/dashboard')
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Erro ao fazer login')
@@ -48,10 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       setUser(response.user)
       setToken(response.token)
-      
-      localStorage.setItem('user', JSON.stringify(response.user))
-      localStorage.setItem('token', response.token)
-      
+
+      persistSession(response.user, response.token)
+
       navigate('/dashboard')
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Erro ao criar conta')
