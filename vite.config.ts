@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  // GitHub Pages serve o app em https://bookshelf-web.github.io/bookshelf-frontend/
+  // GitHub Pages serves the app at https://bookshelf-web.github.io/bookshelf-frontend/
   base: '/bookshelf-frontend/',
   plugins: [react()],
   resolve: {
@@ -14,8 +14,8 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    // Vite 7 bloqueia hosts desconhecidos por segurança.
-    // Em Docker, o Chromium acessa via hostname "frontend" que precisa estar permitido.
+    // Vite 7 blocks unknown hosts by default. In Docker, Chromium reaches the
+    // dev server via the "frontend" hostname, which must be allow-listed.
     allowedHosts: ['frontend', 'localhost'],
     proxy: {
       '/api': {
