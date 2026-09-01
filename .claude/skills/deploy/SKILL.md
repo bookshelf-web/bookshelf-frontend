@@ -49,14 +49,14 @@ Everything below assumes the app is NOT at the domain root:
 
 If the repo/site name ever changes, update all five of the above together.
 
-## Manual deploy (rarely needed)
+## Manual / re-run deploy
 
-```
-npm run deploy      # vite build && gh-pages -d dist
-```
+Pages source is **"GitHub Actions"** (`build_type: workflow`), so the live site is
+whatever the last `deploy-pages.yml` run published. To deploy without a code push:
+Actions tab → "Deploy to GitHub Pages" → **Run workflow** (`workflow_dispatch`).
 
-Uses the `gh-pages` branch. Prefer letting CI do it. The `gh` CLI here is
-read-only, but `gh-pages` pushes over the configured git remote (SSH), which works.
+The `npm run deploy` script and the `gh-pages` branch are **inert** now — Pages no
+longer serves that branch. Leave the script alone or delete it; don't rely on it.
 
 ## Verify a deploy
 

@@ -80,11 +80,13 @@ public/          404.html — SPA-routing fallback for GitHub Pages
 | `npm run preview` | serve the production build locally |
 | `npx tsc -b` | the actual type-check. 4 **pre-existing** errors today (`button.tsx` `@/` alias, `vite.config.ts` node globals) — ignore those, keep new code clean. Emits stray `vite.config.js`/`.d.ts` at repo root; delete them |
 | `npm run lint` | **broken** (`--ext` flag + missing eslint deps). Do not rely on it |
-| `npm run deploy` | manual `gh-pages` publish; normally CI handles deploy |
+| `npm run deploy` | **inert** — Pages source is "GitHub Actions", not the `gh-pages` branch. Ignore this script |
 
-CI (`.github/workflows/deploy-pages.yml`) runs `npm ci && npm run build` and
-deploys to Pages on every push to `main`. **There is no lint/test/typecheck gate**
-— a green `npm run build` is the only automated check. Keep it green.
+Deploy is automatic: `.github/workflows/deploy-pages.yml` runs `npm ci && npm run
+build` and publishes `dist/` to Pages on every push to `main` (Pages source =
+"GitHub Actions"). To redeploy without a code change, trigger it from the Actions
+tab (`workflow_dispatch`). **There is no lint/test/typecheck gate** — a green
+`npm run build` is the only automated check. Keep it green. See the `deploy` skill.
 
 ## Git & deploy
 
