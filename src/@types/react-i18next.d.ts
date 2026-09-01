@@ -1,0 +1,12 @@
+import 'i18next'
+import type ptBR from '../i18n/locales/pt-BR'
+
+// Gives `t()` autocomplete and compile-time checking of translation keys.
+declare module 'i18next' {
+  interface CustomTypeOptions {
+    defaultNS: 'translation'
+    resources: {
+      translation: typeof ptBR
+    }
+  }
+}
