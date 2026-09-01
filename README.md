@@ -257,23 +257,33 @@ npm run test:a11y
 bookshelf-frontend/
 ├── src/
 │   ├── components/
-│   │   ├── ui/              # Componentes base (shadcn/ui)
+│   │   ├── ui/                    # Componentes base (shadcn/ui)
 │   │   │   └── button.tsx
-│   │   └── ...
+│   │   ├── BookModal.tsx          # Modal de adicionar/editar livro
+│   │   ├── DeleteConfirmModal.tsx # Modal de confirmação de exclusão
+│   │   └── LanguageSwitcher.tsx   # Seletor de idioma (i18n)
+│   ├── pages/
+│   │   ├── LoginPage.tsx
+│   │   ├── RegisterPage.tsx
+│   │   └── DashboardPage.tsx
 │   ├── contexts/
-│   │   └── AuthContext.tsx  # Context de autenticação
+│   │   └── AuthContext.tsx        # Context de autenticação
+│   ├── i18n/
+│   │   ├── index.ts               # Configuração do react-i18next
+│   │   └── locales/               # Traduções (pt-BR, en)
 │   ├── services/
-│   │   ├── api.ts           # Configuração Axios
-│   │   ├── auth.service.ts  # Serviços de auth
-│   │   └── books.service.ts # Serviços de livros
+│   │   ├── api.ts                 # Configuração Axios
+│   │   ├── auth.service.ts        # Serviços de auth
+│   │   └── books.service.ts       # Serviços de livros
 │   ├── types/
-│   │   ├── auth.ts          # Types de autenticação
-│   │   └── book.ts          # Types de livros
+│   │   ├── auth.ts                # Types de autenticação
+│   │   └── book.ts                # Types de livros
 │   ├── lib/
-│   │   └── utils.ts         # Utilities
-│   ├── App.tsx              # Componente principal
-│   ├── main.tsx             # Entry point
-│   └── index.css            # Estilos globais
+│   │   ├── apiError.ts            # Tradução de erros da API
+│   │   └── utils.ts               # Utilities
+│   ├── App.tsx                    # Rotas
+│   ├── main.tsx                   # Entry point
+│   └── index.css                 # Estilos globais
 ├── tests/
 │   └── e2e/
 │       └── example.spec.ts  # Testes E2E
@@ -446,7 +456,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - [ ] Dashboard com dados reais da API
 - [ ] PWA (Progressive Web App)
 - [ ] Modo escuro
-- [ ] Internacionalização (i18n)
+- [x] Internacionalização (i18n) — pt-BR e inglês
 - [ ] Integração com Google Books API
 
 ---
