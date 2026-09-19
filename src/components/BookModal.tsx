@@ -98,8 +98,9 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto" data-testid="book-modal">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative animate-fadeIn my-8">
+    <div className="fixed inset-0 bg-black/50 flex justify-center z-50 p-4 overflow-y-auto" data-testid="book-modal">
+      {/* m-auto centres the card when it fits and keeps its top reachable when it overflows. */}
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative animate-fadeIn m-auto">
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -268,7 +269,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className={`${INPUT_CLASS} h-24 resize-none`}
+              className={`${INPUT_CLASS} h-20 resize-none`}
               placeholder={t('bookForm.fields.descriptionPlaceholder')}
               disabled={loading}
             />
@@ -282,7 +283,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className={`${INPUT_CLASS} h-24 resize-none`}
+              className={`${INPUT_CLASS} h-20 resize-none`}
               placeholder={t('bookForm.fields.notesPlaceholder')}
               data-testid="book-notes-input"
               disabled={loading}
