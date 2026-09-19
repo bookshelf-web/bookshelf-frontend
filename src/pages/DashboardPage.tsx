@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BookOpen, BookMarked, TrendingUp, BookOpenCheck, SearchX } from 'lucide-react'
 import { Button } from '../components/ui/button'
@@ -36,9 +36,15 @@ export function DashboardPage() {
   const [sort, setSort] = useState<SortKey>('newest')
   const [page, setPage] = useState(1)
 
+  // Only a real change of the search text may reset the page; otherwise the debounce
+  // timer that fires right after mount would undo a quick page change.
+  const appliedSearch = useRef('')
   useEffect(() => {
     const id = setTimeout(() => {
-      setSearch(searchInput.trim())
+      const next = searchInput.trim()
+      if (next === appliedSearch.current) return
+      appliedSearch.current = next
+      setSearch(next)
       setPage(1)
     }, SEARCH_DEBOUNCE_MS)
     return () => clearTimeout(id)
@@ -60,6 +66,7 @@ export function DashboardPage() {
   const clearFilters = () => {
     setSearchInput('')
     setSearch('')
+    appliedSearch.current = ''
     setStatus('')
     setRating('')
     setPage(1)

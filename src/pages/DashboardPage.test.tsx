@@ -145,6 +145,22 @@ describe('DashboardPage', () => {
     expect(await screen.findByTestId('book-item-10')).toBeInTheDocument()
   })
 
+  it('does not let the search debounce undo a quick page change', async () => {
+    service.getBooks.mockResolvedValue(listResponse([makeBook('1')], 1, 2, 10))
+    render(<DashboardPage />)
+    await screen.findByTestId('book-item-1')
+
+    service.getBooks.mockResolvedValue(listResponse([makeBook('10')], 2, 2, 10))
+    await userEvent.click(screen.getByTestId('pagination-next'))
+    await screen.findByTestId('book-item-10')
+
+    // Let the initial debounce timer fire.
+    await new Promise((resolve) => setTimeout(resolve, 450))
+
+    expect(lastGetBooksParams()).toMatchObject({ page: 2 })
+    expect(screen.getByTestId('pagination-info')).toHaveTextContent('Página 2 de 2')
+  })
+
   it('updates the status and the counters immediately, then confirms with the API', async () => {
     let resolveUpdate: (book: Book) => void = () => {}
     service.updateBookStatus.mockImplementation(
