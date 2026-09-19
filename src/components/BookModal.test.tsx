@@ -3,10 +3,15 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BookModal } from './BookModal'
 import { booksService } from '../services/books.service'
+import { googleBooksService } from '../services/googleBooks.service'
 import type { Book } from '../types/book'
 
 vi.mock('../services/books.service', () => ({
   booksService: { createBook: vi.fn(), updateBook: vi.fn() },
+}))
+
+vi.mock('../services/googleBooks.service', () => ({
+  googleBooksService: { search: vi.fn() },
 }))
 
 const service = vi.mocked(booksService)
@@ -83,6 +88,58 @@ describe('BookModal', () => {
       'b1',
       expect.objectContaining({ rating: null, notes: null, isbn: null, title: 'Dom Casmurro' }),
     )
+  })
+
+  it('fills the form from a Google Books result and saves it with the cover', async () => {
+    vi.mocked(googleBooksService.search).mockResolvedValue([
+      {
+        id: 'g1',
+        title: 'Dom Casmurro',
+        author: 'Machado de Assis',
+        isbn: '9788535914849',
+        publishedYear: 2016,
+        pages: 256,
+        language: 'pt',
+        coverUrl: 'https://books.google.com/cover.jpg',
+      },
+    ])
+    setup()
+
+    await userEvent.type(screen.getByTestId('google-books-query'), 'dom casmurro')
+    await userEvent.click(screen.getByTestId('google-books-search-button'))
+    await userEvent.click(await screen.findByTestId('google-books-result-0'))
+
+    expect(screen.getByLabelText(/Título/)).toHaveValue('Dom Casmurro')
+    expect(screen.getByLabelText(/Autor/)).toHaveValue('Machado de Assis')
+    expect(screen.getByTestId('book-cover-input')).toHaveValue('https://books.google.com/cover.jpg')
+
+    await userEvent.click(screen.getByTestId('save-book-button'))
+
+    await waitFor(() => expect(service.createBook).toHaveBeenCalled())
+    expect(service.createBook).toHaveBeenCalledWith({
+      title: 'Dom Casmurro',
+      author: 'Machado de Assis',
+      isbn: '9788535914849',
+      publishedYear: 2016,
+      pages: 256,
+      language: 'pt',
+      coverUrl: 'https://books.google.com/cover.jpg',
+    })
+  })
+
+  it('does not offer the import when editing', () => {
+    setup(existing)
+    expect(screen.queryByTestId('google-books-search')).not.toBeInTheDocument()
+  })
+
+  it('clears the cover on edit when the URL is emptied', async () => {
+    setup({ ...existing, coverUrl: 'https://example.com/c.jpg' })
+
+    await userEvent.clear(screen.getByTestId('book-cover-input'))
+    await userEvent.click(screen.getByTestId('save-book-button'))
+
+    await waitFor(() => expect(service.updateBook).toHaveBeenCalled())
+    expect(service.updateBook).toHaveBeenCalledWith('b1', expect.objectContaining({ coverUrl: null }))
   })
 
   it('shows the localised API error and stays open', async () => {

@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BookOpen, X } from 'lucide-react'
 import { Button } from './ui/button'
+import { BookCover } from './BookCover'
+import { GoogleBooksSearch } from './GoogleBooksSearch'
+import type { BookSuggestion } from '../services/googleBooks.service'
 import { booksService } from '../services/books.service'
 import { getApiErrorMessage } from '../lib/apiError'
 import type { Book, CreateBookRequest, UpdateBookRequest } from '../types/book'
@@ -42,8 +45,21 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
   const [description, setDescription] = useState(bookToEdit?.description ?? '')
   const [rating, setRating] = useState(bookToEdit?.rating?.toString() ?? '')
   const [notes, setNotes] = useState(bookToEdit?.notes ?? '')
+  const [coverUrl, setCoverUrl] = useState(bookToEdit?.coverUrl ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const applySuggestion = (suggestion: BookSuggestion) => {
+    setTitle(suggestion.title)
+    setAuthor(suggestion.author)
+    setIsbn(suggestion.isbn ?? '')
+    setPublisher(suggestion.publisher ?? '')
+    setPublishedYear(suggestion.publishedYear?.toString() ?? '')
+    setPages(suggestion.pages?.toString() ?? '')
+    setLanguage(suggestion.language ?? '')
+    setDescription(suggestion.description ?? '')
+    setCoverUrl(suggestion.coverUrl ?? '')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,6 +80,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
           description: description || null,
           rating: rating ? parseInt(rating) : null,
           notes: notes || null,
+          coverUrl: coverUrl || null,
         }
         await booksService.updateBook(bookToEdit.id, update)
       } else {
@@ -78,6 +95,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
           ...(description && { description }),
           ...(rating && { rating: parseInt(rating) }),
           ...(notes && { notes }),
+          ...(coverUrl && { coverUrl }),
         }
         await booksService.createBook(create)
       }
@@ -126,6 +144,8 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
             {error}
           </div>
         )}
+
+        {!bookToEdit && <GoogleBooksSearch onSelect={applySuggestion} disabled={loading} />}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -258,6 +278,28 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="coverUrl" className={LABEL_CLASS}>
+              {t('bookForm.fields.coverUrl')}
+            </label>
+            <div className="flex items-start gap-3">
+              <input
+                id="coverUrl"
+                type="url"
+                value={coverUrl}
+                onChange={(e) => setCoverUrl(e.target.value)}
+                className={INPUT_CLASS}
+                placeholder={t('bookForm.fields.coverUrlPlaceholder')}
+                maxLength={500}
+                data-testid="book-cover-input"
+                disabled={loading}
+              />
+              {coverUrl && (
+                <BookCover url={coverUrl} alt={t('bookForm.fields.coverPreviewAlt')} className="h-16 w-11" />
+              )}
             </div>
           </div>
 

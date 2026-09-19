@@ -35,6 +35,8 @@ the [BookShelf API](https://github.com/bookshelf-web/bookshelf-api).
 - Dashboard with reading statistics (total, to read, reading, read)
 - Add, edit and delete books (title, author, ISBN, publisher, year, pages, language, description)
 - Star rating (1-5) and personal notes on every book
+- Book covers (by URL) shown on the cards, with a fallback when the image cannot load
+- Import book data (title, author, ISBN, cover...) from the [Google Books API](https://developers.google.com/books) while adding a book
 - Reading status (to read, reading, read) changed straight from the book card
 - Search by title or author, filter by status and rating, and sorting
 - Paginated book list
@@ -50,7 +52,7 @@ the [BookShelf API](https://github.com/bookshelf-web/bookshelf-api).
 |---------------|-------|
 | Core          | [React 18](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [React Router](https://reactrouter.com/) |
 | UI            | [Tailwind CSS](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/) ([Radix UI](https://www.radix-ui.com/)), [Lucide](https://lucide.dev/) |
-| Data          | [Axios](https://axios-http.com/) |
+| Data          | [Axios](https://axios-http.com/), [Google Books API](https://developers.google.com/books) (keyless, called from the browser) |
 | Quality       | [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/), [ESLint](https://eslint.org/), `tsc` |
 | i18n          | [i18next](https://www.i18next.com/) / [react-i18next](https://react.i18next.com/) |
 
@@ -164,8 +166,10 @@ own copy:
 - [x] Reading status, ratings and personal notes
 - [x] Dark mode
 - [x] PWA support
-- [ ] Book cover images
-- [ ] Import book data from the Google Books API
+- [x] Book cover images
+- [x] Import book data from the Google Books API
+- [ ] Upload cover images instead of linking to a URL
+- [ ] Reading progress (current page)
 
 ## Contributing
 

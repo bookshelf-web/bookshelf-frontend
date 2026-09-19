@@ -121,6 +121,8 @@ the Actions tab (`workflow_dispatch`). See the `deploy` skill.
   `dark:` variants. New colours need a matching rule there.
 - The service worker (`public/sw.js`) is registered only in production builds and never when
   `navigator.webdriver` is set, so E2E browsers are unaffected.
+- Google Books is called straight from the browser (`services/googleBooks.service.ts`, own axios instance so
+  the API token is never sent to Google). E2E specs mock it; never let a test depend on the real service.
 - The dev server and E2E builds serve from `/`; the `/bookshelf-frontend/` base applies only when
   `GITHUB_PAGES=true` (set by the deploy workflow).
 - No local backend/DB on this machine by default. Run `bookshelf-api` separately,

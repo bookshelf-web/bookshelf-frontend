@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Edit, Trash2 } from 'lucide-react'
 import { StarRating } from './StarRating'
+import { BookCover } from './BookCover'
 import { BOOK_STATUSES } from '../lib/bookOptions'
 import type { Book, BookStatus } from '../types/book'
 
@@ -22,9 +23,18 @@ export function BookCard({ book, onEdit, onDelete, onStatusChange }: BookCardPro
       data-testid={`book-item-${book.id}`}
     >
       <div className="flex justify-between items-start mb-2">
-        <div className="flex-1">
-          <h4 className="font-semibold text-gray-900">{book.title}</h4>
-          <p className="text-sm text-gray-600">{book.author}</p>
+        <div className="flex flex-1 gap-3">
+          {book.coverUrl && (
+            <BookCover
+              url={book.coverUrl}
+              alt={t('dashboard.bookList.coverAlt', { title: book.title })}
+              testId={`book-cover-${book.id}`}
+            />
+          )}
+          <div className="flex-1">
+            <h4 className="font-semibold text-gray-900">{book.title}</h4>
+            <p className="text-sm text-gray-600">{book.author}</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <button

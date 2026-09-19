@@ -40,6 +40,13 @@ describe('BookCard', () => {
     expect(screen.queryByTestId('book-notes-b1')).not.toBeInTheDocument()
   })
 
+  it('renders the cover without changing the first line of text', () => {
+    setup({ coverUrl: 'https://example.com/cover.jpg' })
+    const card = screen.getByTestId('book-item-b1')
+    expect(screen.getByTestId('book-cover-b1')).toHaveAttribute('src', 'https://example.com/cover.jpg')
+    expect(card.textContent?.startsWith('Dom Casmurro')).toBe(true)
+  })
+
   it('reflects the status and reports changes', async () => {
     const { onStatusChange } = setup()
     const select = screen.getByTestId('book-status-b1')
