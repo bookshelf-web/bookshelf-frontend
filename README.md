@@ -32,6 +32,9 @@ the [BookShelf API](https://github.com/bookshelf-web/bookshelf-api).
 ## Features
 
 - JWT authentication: register, login, logout and protected routes
+- Accounts with combinable **roles**: personal library, buy in the bookstore, sell in the bookstore
+  (chosen at sign-up, changeable in *My account*); routes and navigation follow the roles
+- Company registration for sellers (CNPJ validated by the API) and an admin page to verify companies
 - Dashboard with reading statistics (total, to read, reading, read)
 - Add, edit and delete books (title, author, ISBN, publisher, year, pages, language, description)
 - Star rating (1-5) and personal notes on every book
@@ -96,13 +99,14 @@ build, `VITE_API_URL` is read from the repository's *Actions variables*.
 | `npm run lint`    | Lint with ESLint                    |
 | `npm run typecheck` | Type-check with `tsc -b`          |
 | `npm test`        | Run the unit tests once (Vitest)    |
+| `npm run test:coverage` | Unit tests with coverage and thresholds |
 | `npm run test:watch` | Run the unit tests in watch mode |
 
 ## Project structure
 
 ```
 src/
-  pages/        route components (Login, Register, Dashboard)
+  pages/        route components (Login, Register, Dashboard, Account, CompanyForm, AdminCompanies)
   components/   shared components; ui/ holds shadcn primitives
   contexts/     AuthContext (session state)
   hooks/        data loading (useBookLibrary) and theme (useTheme)
@@ -168,6 +172,9 @@ own copy:
 - [x] PWA support
 - [x] Book cover images
 - [x] Import book data from the Google Books API
+- [x] Accounts with roles and company registration
+- [ ] Second-hand bookstore: shared catalog with admin moderation, listings, cart and orders
+- [ ] Payments (simulated gateway)
 - [ ] Upload cover images instead of linking to a URL
 - [ ] Reading progress (current page)
 

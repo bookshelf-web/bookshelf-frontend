@@ -23,10 +23,10 @@ The project is intentionally **pre-1.0**.
 
 ```
 src/
-  pages/         one component per route — LoginPage, RegisterPage, DashboardPage
+  pages/         one component per route — Login, Register, Dashboard, Account, CompanyForm, AdminCompanies
   components/     shared components; components/ui/ is reserved for shadcn primitives
                  BookModal, DeleteConfirmModal, LanguageSwitcher
-  contexts/      AuthContext — { user, token, login, register, logout, isAuthenticated }
+  contexts/      AuthContext — { user, token, roles, hasRole, login, register, applySession, logout, isAuthenticated }
   hooks/         useBookLibrary (list + stats + optimistic status), useTheme
   services/      api.ts (shared axios instance) + <feature>.service.ts (typed calls)
   lib/           apiError.ts (backend error -> localized message), utils.ts (cn)
@@ -68,6 +68,10 @@ public/          404.html — SPA-routing fallback for GitHub Pages
   comments that restate the code.
 - **Imports:** the `@/` alias resolves in Vite but **not** in `tsc` (no `paths`
   in tsconfig). Prefer relative imports in new files so `npx tsc -b` stays usable.
+- **Roles:** accounts hold combinable roles (`reader`, `buyer`, `seller`, `admin`) carried in the JWT.
+  Guard routes with `RequireAuth`/`RequireRole` (`components/RouteGuards.tsx`) and read them with
+  `useAuth().hasRole()`. A role change returns a fresh token: pass it to `applySession()`. Readers land on
+  `/dashboard`, everyone else on `/account` (`lib/roles.ts#homePathFor`).
 - **Auth:** read the session with `useAuth()`. The 401 response interceptor in
   `api.ts` already clears storage and hard-redirects to `${BASE_URL}login` — do
   not duplicate that.
@@ -82,6 +86,7 @@ public/          404.html — SPA-routing fallback for GitHub Pages
 | `npm run typecheck` | `tsc -b` over the app and the Vite config |
 | `npm run lint` | ESLint flat config (`eslint.config.js`) |
 | `npm test` / `npm run test:watch` | Vitest + Testing Library (jsdom); tests live next to the code as `*.test.ts(x)` |
+| `npm run test:coverage` | Same, with v8 coverage and thresholds (used by CI and the deploy gate) |
 
 Deploy is automatic: `.github/workflows/deploy-pages.yml` runs `npm ci`, lint, typecheck, unit
 tests and `npm run build`, then publishes `dist/` to Pages on every push to `main` (Pages source =
