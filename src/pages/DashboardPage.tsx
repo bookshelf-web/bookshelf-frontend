@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BookOpen, BookMarked, TrendingUp, BookOpenCheck, SearchX } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import { LanguageSwitcher } from '../components/LanguageSwitcher'
-import { ThemeToggle } from '../components/ThemeToggle'
+import { AppHeader } from '../components/AppHeader'
 import { BookModal } from '../components/BookModal'
 import { BookCard } from '../components/BookCard'
 import { BookFilters } from '../components/BookFilters'
@@ -21,7 +20,7 @@ const SEARCH_DEBOUNCE_MS = 300
 
 export function DashboardPage() {
   const { t } = useTranslation()
-  const { logout, user } = useAuth()
+  const { user } = useAuth()
 
   const [showAddBookModal, setShowAddBookModal] = useState(false)
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null)
@@ -104,26 +103,7 @@ export function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" data-testid="dashboard-page">
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <BookOpen className="w-6 h-6 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('common.appName')}</h1>
-              {user && <p className="text-xs text-gray-500">{user.name}</p>}
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <LanguageSwitcher />
-            <Button variant="outline" size="sm" onClick={logout} className="hover:bg-gray-50">
-              {t('dashboard.logout')}
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">

@@ -34,7 +34,7 @@ jobs:
         run: npm run typecheck
 
       - name: Unit tests
-        run: npm test
+        run: npm run test:coverage
 
       - name: Build
         env:

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render as rtlRender, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import { DashboardPage } from './DashboardPage'
 import { booksService } from '../services/books.service'
@@ -17,8 +18,16 @@ vi.mock('../services/books.service', () => ({
 }))
 
 vi.mock('../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 'u1', name: 'Ana', email: 'ana@example.com' }, logout: vi.fn() }),
+  useAuth: () => ({
+    user: { id: 'u1', name: 'Ana', email: 'ana@example.com', roles: ['reader'] },
+    roles: ['reader'],
+    hasRole: (role: string) => role === 'reader',
+    logout: vi.fn(),
+  }),
 }))
+
+// The header links to other pages, so the dashboard needs a router around it.
+const render = (ui: React.ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>)
 
 const service = vi.mocked(booksService)
 

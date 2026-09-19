@@ -1,13 +1,23 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth.service'
-import type { User } from '../types/auth'
+import { homePathFor, rolesOf } from '../lib/roles'
+import type { AuthResponse, Role, SelfServiceRole, User } from '../types/auth'
 
 interface AuthContextType {
   user: User | null
   token: string | null
+  roles: Role[]
+  hasRole: (role: Role) => boolean
   login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string) => Promise<void>
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    roles?: SelfServiceRole[],
+  ) => Promise<void>
+  /** Applies a fresh session (e.g. the token returned after changing roles). */
+  applySession: (response: Pick<AuthResponse, 'user' | 'token'>) => void
   logout: () => void
   isAuthenticated: boolean
 }
@@ -37,21 +47,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'))
   const navigate = useNavigate()
 
+  const applySession = (response: Pick<AuthResponse, 'user' | 'token'>) => {
+    setUser(response.user)
+    setToken(response.token)
+    persistSession(response.user, response.token)
+  }
+
   // Errors bubble up to the calling page, which localises them via getApiErrorMessage.
   const login = async (email: string, password: string) => {
     const response = await authService.login({ email, password })
-    setUser(response.user)
-    setToken(response.token)
-    persistSession(response.user, response.token)
-    navigate('/dashboard')
+    applySession(response)
+    navigate(homePathFor(rolesOf(response.user)))
   }
 
-  const register = async (name: string, email: string, password: string) => {
-    const response = await authService.register({ name, email, password })
-    setUser(response.user)
-    setToken(response.token)
-    persistSession(response.user, response.token)
-    navigate('/dashboard')
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    roles?: SelfServiceRole[],
+  ) => {
+    const response = await authService.register({ name, email, password, roles })
+    applySession(response)
+    navigate(homePathFor(rolesOf(response.user)))
   }
 
   const logout = () => {
@@ -62,9 +79,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate('/login')
   }
 
+  const roles = rolesOf(user)
+
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, isAuthenticated: !!token }}
+      value={{
+        user,
+        token,
+        roles,
+        hasRole: (role) => roles.includes(role),
+        login,
+        register,
+        applySession,
+        logout,
+        isAuthenticated: !!token,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -5,8 +5,10 @@ import { User, Mail, Lock } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { RoleSelector } from '../components/RoleSelector'
 import { useAuth } from '../contexts/AuthContext'
 import { getApiErrorMessage } from '../lib/apiError'
+import type { SelfServiceRole } from '../types/auth'
 
 export function RegisterPage() {
   const { t } = useTranslation()
@@ -14,16 +16,22 @@ export function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  // Library only by default, which is what the account did before roles existed.
+  const [roles, setRoles] = useState<SelfServiceRole[]>(['reader'])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (roles.length === 0) {
+      setError(t('register.rolesRequired'))
+      return
+    }
     setLoading(true)
 
     try {
-      await register(name, email, password)
+      await register(name, email, password, roles)
     } catch (err) {
       setError(getApiErrorMessage(err, 'register.genericError'))
     } finally {
@@ -129,6 +137,18 @@ export function RegisterPage() {
             </div>
             <p className="text-xs text-white/60 mt-1">{t('register.passwordHint')}</p>
           </div>
+
+          <fieldset className="space-y-2" data-testid="register-roles">
+            <legend className="text-sm font-medium text-white/90">{t('register.rolesTitle')}</legend>
+            <p className="text-xs text-white/60">{t('register.rolesHint')}</p>
+            <RoleSelector
+              value={roles}
+              onChange={setRoles}
+              variant="onDark"
+              disabled={loading}
+              testIdPrefix="register-role"
+            />
+          </fieldset>
 
           <Button
             type="submit"
