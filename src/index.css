@@ -52,3 +52,114 @@
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
+
+/*
+ * Dark mode. The components use fixed light-palette utilities, so the `.dark`
+ * class on <html> remaps those utilities instead of duplicating every class
+ * with a `dark:` variant.
+ */
+.dark {
+  color-scheme: dark;
+  --background: 222 47% 11%;
+  --foreground: 210 40% 96%;
+  --card: 222 47% 11%;
+  --card-foreground: 210 40% 96%;
+  --popover: 222 47% 11%;
+  --popover-foreground: 210 40% 96%;
+  --secondary: 217 33% 20%;
+  --secondary-foreground: 210 40% 96%;
+  --muted: 217 33% 20%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 33% 24%;
+  --accent-foreground: 210 40% 96%;
+  --border: 217 33% 22%;
+  --input: 217 33% 22%;
+}
+
+.dark body {
+  background-color: #0b1120;
+  color: #e2e8f0;
+}
+
+.dark .bg-white { background-color: #1e293b; }
+.dark .bg-gray-50 { background-color: #273449; }
+.dark .bg-gray-100 { background-color: #334155; }
+.dark .hover\:bg-gray-50:hover { background-color: #273449; }
+.dark .hover\:bg-blue-50:hover { background-color: #1e3a5f; }
+.dark .hover\:bg-red-50:hover { background-color: #4c1d24; }
+.dark .hover\:bg-purple-50:hover,
+.dark .group:hover .group-hover\:bg-purple-50 { background-color: #3b2a63; }
+
+.dark .from-gray-50 {
+  --tw-gradient-from: #0b1120 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(11 17 32 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-gray-100 { --tw-gradient-to: #111827 var(--tw-gradient-to-position); }
+
+.dark .from-blue-50 {
+  --tw-gradient-from: #172554 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(23 37 84 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-blue-100 { --tw-gradient-to: #1e3a8a var(--tw-gradient-to-position); }
+.dark .from-amber-50 {
+  --tw-gradient-from: #422006 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(66 32 6 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-amber-100 { --tw-gradient-to: #78350f var(--tw-gradient-to-position); }
+.dark .from-green-50 {
+  --tw-gradient-from: #052e16 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(5 46 22 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-green-100 { --tw-gradient-to: #14532d var(--tw-gradient-to-position); }
+
+.dark .bg-blue-100 { background-color: #1e3a8a; }
+.dark .bg-amber-100 { background-color: #78350f; }
+.dark .bg-green-100 { background-color: #14532d; }
+.dark .bg-purple-100 { background-color: #3b2a63; }
+.dark .bg-red-50 { background-color: #3b1219; }
+.dark .group:hover .group-hover\:bg-blue-200 { background-color: #1d4ed8; }
+.dark .group:hover .group-hover\:bg-amber-200 { background-color: #b45309; }
+.dark .group:hover .group-hover\:bg-green-200 { background-color: #15803d; }
+
+.dark .text-gray-900 { color: #f1f5f9; }
+.dark .text-gray-700 { color: #cbd5e1; }
+.dark .text-gray-600 { color: #b6c2d2; }
+.dark .text-gray-500 { color: #94a3b8; }
+.dark .text-gray-400 { color: #7b8aa0; }
+.dark .hover\:text-gray-700:hover,
+.dark .hover\:text-gray-600:hover { color: #e2e8f0; }
+.dark .text-blue-900 { color: #dbeafe; }
+.dark .text-blue-700 { color: #bfdbfe; }
+.dark .text-blue-600 { color: #93c5fd; }
+.dark .text-amber-900 { color: #fef3c7; }
+.dark .text-amber-700 { color: #fde68a; }
+.dark .text-amber-600 { color: #fcd34d; }
+.dark .text-green-900 { color: #dcfce7; }
+.dark .text-green-700 { color: #bbf7d0; }
+.dark .text-green-600 { color: #86efac; }
+.dark .text-red-600 { color: #fca5a5; }
+.dark .text-purple-600 { color: #c4b5fd; }
+.dark .bg-white.text-purple-600 { background-color: #ffffff; color: #6d28d9; }
+
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 { border-color: #334155; }
+.dark .border-blue-200 { border-color: #1e40af; }
+.dark .border-amber-200 { border-color: #92400e; }
+.dark .border-green-200 { border-color: #166534; }
+.dark .border-red-200 { border-color: #7f1d1d; }
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b;
+}

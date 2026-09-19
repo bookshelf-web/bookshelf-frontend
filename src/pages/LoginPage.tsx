@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { BookOpen, Mail, Lock } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { ThemeToggle } from '../components/ThemeToggle'
 import { useAuth } from '../contexts/AuthContext'
 import { getApiErrorMessage } from '../lib/apiError'
 
@@ -39,7 +40,8 @@ export function LoginPage() {
         <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-white/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="absolute right-4 top-4 z-20">
+      <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
+        <ThemeToggle variant="onDark" />
         <LanguageSwitcher variant="onDark" />
       </div>
 

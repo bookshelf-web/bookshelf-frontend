@@ -35,9 +35,10 @@ export interface CreateBookRequest {
   coverUrl?: string;
 }
 
-export interface UpdateBookRequest extends Partial<CreateBookRequest> {
-  status?: BookStatus;
-}
+// `null` clears an optional field on the API.
+export type UpdateBookRequest = {
+  [K in keyof CreateBookRequest]?: CreateBookRequest[K] | null;
+} & { status?: BookStatus };
 
 export interface BooksListResponse {
   books: Book[];

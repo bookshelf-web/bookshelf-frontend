@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BookOpen, X } from 'lucide-react'
 import { Button } from './ui/button'
 import { booksService } from '../services/books.service'
 import { getApiErrorMessage } from '../lib/apiError'
-import type { Book, CreateBookRequest } from '../types/book'
+import type { Book, CreateBookRequest, UpdateBookRequest } from '../types/book'
 
 interface BookModalProps {
   isOpen: boolean
@@ -13,41 +13,37 @@ interface BookModalProps {
   onSuccess: () => void
 }
 
+const INPUT_CLASS =
+  'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+const LABEL_CLASS = 'block text-sm font-medium text-gray-700 mb-1'
+
+// Rendered only while open, so the form state starts fresh every time.
 export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalProps) {
+  if (!isOpen) return null
+  return (
+    <BookForm
+      key={bookToEdit?.id ?? 'new'}
+      onClose={onClose}
+      bookToEdit={bookToEdit}
+      onSuccess={onSuccess}
+    />
+  )
+}
+
+function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOpen'>) {
   const { t } = useTranslation()
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [isbn, setIsbn] = useState('')
-  const [publisher, setPublisher] = useState('')
-  const [publishedYear, setPublishedYear] = useState('')
-  const [pages, setPages] = useState('')
-  const [language, setLanguage] = useState('')
-  const [description, setDescription] = useState('')
+  const [title, setTitle] = useState(bookToEdit?.title ?? '')
+  const [author, setAuthor] = useState(bookToEdit?.author ?? '')
+  const [isbn, setIsbn] = useState(bookToEdit?.isbn ?? '')
+  const [publisher, setPublisher] = useState(bookToEdit?.publisher ?? '')
+  const [publishedYear, setPublishedYear] = useState(bookToEdit?.publishedYear?.toString() ?? '')
+  const [pages, setPages] = useState(bookToEdit?.pages?.toString() ?? '')
+  const [language, setLanguage] = useState(bookToEdit?.language ?? '')
+  const [description, setDescription] = useState(bookToEdit?.description ?? '')
+  const [rating, setRating] = useState(bookToEdit?.rating?.toString() ?? '')
+  const [notes, setNotes] = useState(bookToEdit?.notes ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (bookToEdit) {
-      setTitle(bookToEdit.title)
-      setAuthor(bookToEdit.author)
-      setIsbn(bookToEdit.isbn || '')
-      setPublisher(bookToEdit.publisher || '')
-      setPublishedYear(bookToEdit.publishedYear?.toString() || '')
-      setPages(bookToEdit.pages?.toString() || '')
-      setLanguage(bookToEdit.language || '')
-      setDescription(bookToEdit.description || '')
-    } else {
-      setTitle('')
-      setAuthor('')
-      setIsbn('')
-      setPublisher('')
-      setPublishedYear('')
-      setPages('')
-      setLanguage('')
-      setDescription('')
-    }
-    setError('')
-  }, [bookToEdit, isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,21 +51,35 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
     setError('')
 
     try {
-      const bookData: CreateBookRequest = {
-        title,
-        author,
-        ...(isbn && { isbn }),
-        ...(publisher && { publisher }),
-        ...(publishedYear && { publishedYear: parseInt(publishedYear) }),
-        ...(pages && { pages: parseInt(pages) }),
-        ...(language && { language }),
-        ...(description && { description }),
-      }
-
       if (bookToEdit) {
-        await booksService.updateBook(bookToEdit.id, bookData)
+        // On edit an emptied field is sent as null so the API clears it.
+        const update: UpdateBookRequest = {
+          title,
+          author,
+          isbn: isbn || null,
+          publisher: publisher || null,
+          publishedYear: publishedYear ? parseInt(publishedYear) : null,
+          pages: pages ? parseInt(pages) : null,
+          language: language || null,
+          description: description || null,
+          rating: rating ? parseInt(rating) : null,
+          notes: notes || null,
+        }
+        await booksService.updateBook(bookToEdit.id, update)
       } else {
-        await booksService.createBook(bookData)
+        const create: CreateBookRequest = {
+          title,
+          author,
+          ...(isbn && { isbn }),
+          ...(publisher && { publisher }),
+          ...(publishedYear && { publishedYear: parseInt(publishedYear) }),
+          ...(pages && { pages: parseInt(pages) }),
+          ...(language && { language }),
+          ...(description && { description }),
+          ...(rating && { rating: parseInt(rating) }),
+          ...(notes && { notes }),
+        }
+        await booksService.createBook(create)
       }
 
       onSuccess()
@@ -86,8 +96,6 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
       onClose()
     }
   }
-
-  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto" data-testid="book-modal">
@@ -121,7 +129,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="title" className={LABEL_CLASS}>
                 {t('bookForm.fields.title')} *
               </label>
               <input
@@ -129,7 +137,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.titlePlaceholder')}
                 required
                 disabled={loading}
@@ -137,7 +145,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
             </div>
 
             <div>
-              <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="author" className={LABEL_CLASS}>
                 {t('bookForm.fields.author')} *
               </label>
               <input
@@ -145,7 +153,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
                 type="text"
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.authorPlaceholder')}
                 required
                 disabled={loading}
@@ -153,7 +161,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
             </div>
 
             <div>
-              <label htmlFor="isbn" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="isbn" className={LABEL_CLASS}>
                 {t('bookForm.fields.isbn')}
               </label>
               <input
@@ -161,14 +169,14 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
                 type="text"
                 value={isbn}
                 onChange={(e) => setIsbn(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.isbnPlaceholder')}
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label htmlFor="publisher" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="publisher" className={LABEL_CLASS}>
                 {t('bookForm.fields.publisher')}
               </label>
               <input
@@ -176,14 +184,14 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
                 type="text"
                 value={publisher}
                 onChange={(e) => setPublisher(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.publisherPlaceholder')}
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label htmlFor="publishedYear" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="publishedYear" className={LABEL_CLASS}>
                 {t('bookForm.fields.publishedYear')}
               </label>
               <input
@@ -191,7 +199,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
                 type="number"
                 value={publishedYear}
                 onChange={(e) => setPublishedYear(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.publishedYearPlaceholder')}
                 min="1000"
                 max="2100"
@@ -200,7 +208,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
             </div>
 
             <div>
-              <label htmlFor="pages" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="pages" className={LABEL_CLASS}>
                 {t('bookForm.fields.pages')}
               </label>
               <input
@@ -208,7 +216,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
                 type="number"
                 value={pages}
                 onChange={(e) => setPages(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.pagesPlaceholder')}
                 min="1"
                 disabled={loading}
@@ -216,7 +224,7 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
             </div>
 
             <div>
-              <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="language" className={LABEL_CLASS}>
                 {t('bookForm.fields.language')}
               </label>
               <input
@@ -224,23 +232,59 @@ export function BookModal({ isOpen, onClose, bookToEdit, onSuccess }: BookModalP
                 type="text"
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.languagePlaceholder')}
                 disabled={loading}
               />
             </div>
+
+            <div>
+              <label htmlFor="rating" className={LABEL_CLASS}>
+                {t('bookForm.fields.rating')}
+              </label>
+              <select
+                id="rating"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                className={INPUT_CLASS}
+                data-testid="book-rating-input"
+                disabled={loading}
+              >
+                <option value="">{t('bookForm.fields.ratingNone')}</option>
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <option key={value} value={value}>
+                    {t('bookForm.fields.ratingOption', { count: value })}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className={LABEL_CLASS}>
               {t('bookForm.fields.description')}
             </label>
             <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent h-24 resize-none"
+              className={`${INPUT_CLASS} h-24 resize-none`}
               placeholder={t('bookForm.fields.descriptionPlaceholder')}
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="notes" className={LABEL_CLASS}>
+              {t('bookForm.fields.notes')}
+            </label>
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className={`${INPUT_CLASS} h-24 resize-none`}
+              placeholder={t('bookForm.fields.notesPlaceholder')}
+              data-testid="book-notes-input"
               disabled={loading}
             />
           </div>
