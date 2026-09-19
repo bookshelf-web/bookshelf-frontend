@@ -27,6 +27,7 @@ src/
   components/     shared components; components/ui/ is reserved for shadcn primitives
                  BookModal, DeleteConfirmModal, LanguageSwitcher
   contexts/      AuthContext — { user, token, login, register, logout, isAuthenticated }
+  hooks/         useBookLibrary (list + stats + optimistic status), useTheme
   services/      api.ts (shared axios instance) + <feature>.service.ts (typed calls)
   lib/           apiError.ts (backend error -> localized message), utils.ts (cn)
   i18n/          index.ts (init) + locales/{pt-BR,en}.ts
@@ -57,9 +58,9 @@ public/          404.html — SPA-routing fallback for GitHub Pages
 - **API envelopes:** success `{ message, book }` / `{ books, pagination }` /
   `{ stats }` / `{ message, token, user }`. Error `{ error, code, details? }`
   with `code` in `SCREAMING_SNAKE_CASE`.
-- **Components:** function components + hooks. Local `useState`/`useEffect` +
-  service calls is the current norm. `@tanstack/react-query` is provider-wired
-  but **not used** by feature code yet — don't adopt it piecemeal without saying so.
+- **Components:** function components + hooks. Server data is loaded in custom hooks
+  (`src/hooks`) that call the services; avoid `setState` synchronously inside an effect (the
+  `react-hooks` lint rule flags it) — fetch in the effect and set state in the promise callback.
 - **Style:** `.tsx` files (pages, components) use **no semicolons**, single
   quotes, 2-space indent — match `App.tsx`. `src/services/*` and `src/types/*`
   use semicolons. Match the file you are editing.
@@ -76,17 +77,17 @@ public/          404.html — SPA-routing fallback for GitHub Pages
 | Command | Notes |
 |---|---|
 | `npm run dev` | Vite dev server at `localhost:5173` (root; the `/bookshelf-frontend/` base applies only when `GITHUB_PAGES=true`); proxies `/api` → `VITE_API_URL` |
-| `npm run build` | `tsc && vite build`. **The `tsc` step is a no-op** (root `tsconfig.json` has `files: []`); `vite build` is the real gate |
+| `npm run build` | `tsc -b && vite build` (a real type-check, then the bundle) |
 | `npm run preview` | serve the production build locally |
-| `npx tsc -b` | the actual type-check. 4 **pre-existing** errors today (`button.tsx` `@/` alias, `vite.config.ts` node globals) — ignore those, keep new code clean. Emits stray `vite.config.js`/`.d.ts` at repo root; delete them |
-| `npm run lint` | **broken** (`--ext` flag + missing eslint deps). Do not rely on it |
-| `npm run deploy` | **inert** — Pages source is "GitHub Actions", not the `gh-pages` branch. Ignore this script |
+| `npm run typecheck` | `tsc -b` over the app and the Vite config |
+| `npm run lint` | ESLint flat config (`eslint.config.js`) |
+| `npm test` / `npm run test:watch` | Vitest + Testing Library (jsdom); tests live next to the code as `*.test.ts(x)` |
 
-Deploy is automatic: `.github/workflows/deploy-pages.yml` runs `npm ci && npm run
-build` and publishes `dist/` to Pages on every push to `main` (Pages source =
-"GitHub Actions"). To redeploy without a code change, trigger it from the Actions
-tab (`workflow_dispatch`). **There is no lint/test/typecheck gate** — a green
-`npm run build` is the only automated check. Keep it green. See the `deploy` skill.
+Deploy is automatic: `.github/workflows/deploy-pages.yml` runs `npm ci`, lint, typecheck, unit
+tests and `npm run build`, then publishes `dist/` to Pages on every push to `main` (Pages source =
+"GitHub Actions"). A failing check blocks the deploy. `.github/workflows/ci.yml` runs the same on
+pull requests and other branches. To redeploy without a code change, trigger the deploy workflow from
+the Actions tab (`workflow_dispatch`). See the `deploy` skill.
 
 ## Git & deploy
 
@@ -113,12 +114,15 @@ tab (`workflow_dispatch`). **There is no lint/test/typecheck gate** — a green
 - **`VITE_API_URL`.** Dev reads it from `.env` (`http://localhost:3000/api`).
   The production build reads the repo **Actions Variable** `VITE_API_URL` (base
   URL only — `api.ts` appends `/api`).
-- `@tanstack/react-query`, `react-hook-form`, `zod` are installed (and RQ is
-  provider-wired) but unused by feature code — scaffolding, not the current
-  pattern.
-- `booksService.getBooks()` is called with no params on the dashboard, so only
-  the first 10 books render and `pagination` is ignored — known, not yet wired
-  to any UI.
+- Data loading goes through `src/hooks/useBookLibrary.ts` (list + stats, optimistic status
+  changes). The book list request carries a query string (`page`, `limit`, `sortBy`...), so E2E
+  mocks must match it (regex, not an exact `**/api/books` glob).
+- Dark mode remaps the light-palette utilities under `.dark` in `src/index.css` instead of using
+  `dark:` variants. New colours need a matching rule there.
+- The service worker (`public/sw.js`) is registered only in production builds and never when
+  `navigator.webdriver` is set, so E2E browsers are unaffected.
+- The dev server and E2E builds serve from `/`; the `/bookshelf-frontend/` base applies only when
+  `GITHUB_PAGES=true` (set by the deploy workflow).
 - No local backend/DB on this machine by default. Run `bookshelf-api` separately,
   or point `VITE_API_URL` at the Render URL, to exercise real data.
 

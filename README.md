@@ -34,6 +34,12 @@ the [BookShelf API](https://github.com/bookshelf-web/bookshelf-api).
 - JWT authentication: register, login, logout and protected routes
 - Dashboard with reading statistics (total, to read, reading, read)
 - Add, edit and delete books (title, author, ISBN, publisher, year, pages, language, description)
+- Star rating (1-5) and personal notes on every book
+- Reading status (to read, reading, read) changed straight from the book card
+- Search by title or author, filter by status and rating, and sorting
+- Paginated book list
+- Dark mode: follows the OS by default, toggle persisted per browser
+- Installable PWA with offline access to the app shell
 - Form validation with localized error messages
 - Internationalization: Brazilian Portuguese and English
 - Responsive layout
@@ -45,6 +51,7 @@ the [BookShelf API](https://github.com/bookshelf-web/bookshelf-api).
 | Core          | [React 18](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [React Router](https://reactrouter.com/) |
 | UI            | [Tailwind CSS](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/) ([Radix UI](https://www.radix-ui.com/)), [Lucide](https://lucide.dev/) |
 | Data          | [Axios](https://axios-http.com/) |
+| Quality       | [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/), [ESLint](https://eslint.org/), `tsc` |
 | i18n          | [i18next](https://www.i18next.com/) / [react-i18next](https://react.i18next.com/) |
 
 ## Getting started
@@ -84,6 +91,10 @@ build, `VITE_API_URL` is read from the repository's *Actions variables*.
 | `npm run dev`     | Start the dev server with hot reload |
 | `npm run build`   | Type-check and build for production |
 | `npm run preview` | Serve the production build locally  |
+| `npm run lint`    | Lint with ESLint                    |
+| `npm run typecheck` | Type-check with `tsc -b`          |
+| `npm test`        | Run the unit tests once (Vitest)    |
+| `npm run test:watch` | Run the unit tests in watch mode |
 
 ## Project structure
 
@@ -92,16 +103,20 @@ src/
   pages/        route components (Login, Register, Dashboard)
   components/   shared components; ui/ holds shadcn primitives
   contexts/     AuthContext (session state)
+  hooks/        data loading (useBookLibrary) and theme (useTheme)
   services/     shared Axios instance + typed API calls
-  lib/          API error mapping, utilities
+  lib/          API error mapping, theme and option helpers, service worker registration
   i18n/         i18next setup and locales (pt-BR, en)
   types/        API response types
   App.tsx       routes
   main.tsx      providers and entry point
-public/         static assets and the SPA fallback for GitHub Pages
+public/         static assets, PWA manifest/icons/service worker and the SPA fallback for GitHub Pages
 ```
 
 ## Testing
+
+Unit and component tests run with `npm test` (Vitest + Testing Library). Lint, type-check
+and unit tests also gate every deploy and every pull request.
 
 End-to-end, visual and accessibility suites live in separate repositories and
 drive this UI through `data-testid` attributes:
@@ -144,16 +159,19 @@ own copy:
 - [x] Dashboard with reading statistics
 - [x] Add, edit and delete books
 - [x] Internationalization (pt-BR and English)
-- [ ] Paginated book list
-- [ ] Search and advanced filters
-- [ ] Ratings and personal notes
-- [ ] Dark mode
-- [ ] PWA support
+- [x] Paginated book list
+- [x] Search, filters and sorting
+- [x] Reading status, ratings and personal notes
+- [x] Dark mode
+- [x] PWA support
+- [ ] Book cover images
+- [ ] Import book data from the Google Books API
 
 ## Contributing
 
 Contributions are welcome. Fork the repository, create a branch, and open a pull
-request. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+request. Run `npm run lint`, `npm run typecheck` and `npm test` first; the same checks run in CI.
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
 (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
 
 ## License
