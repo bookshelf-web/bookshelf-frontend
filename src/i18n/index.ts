@@ -18,10 +18,10 @@ i18n
       en: { translation: en },
     },
     supportedLngs: [...SUPPORTED_LANGUAGES],
+    // Regional variants ("pt", "en-US") resolve through the fallback chain.
+    // Do not add nonExplicitSupportedLngs/load: with i18next 26 they make
+    // "pt-BR" and "en-US" return raw keys.
     fallbackLng: DEFAULT_LANGUAGE,
-    // Treat "pt" the same as "pt-BR" instead of trying to load a missing "pt".
-    load: 'currentOnly',
-    nonExplicitSupportedLngs: true,
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
