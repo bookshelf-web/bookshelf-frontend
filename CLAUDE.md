@@ -75,7 +75,7 @@ public/          404.html — SPA-routing fallback for GitHub Pages
 
 | Command | Notes |
 |---|---|
-| `npm run dev` | Vite dev server at `localhost:5173/bookshelf-frontend/`; proxies `/api` → `VITE_API_URL` |
+| `npm run dev` | Vite dev server at `localhost:5173` (root; the `/bookshelf-frontend/` base applies only when `GITHUB_PAGES=true`); proxies `/api` → `VITE_API_URL` |
 | `npm run build` | `tsc && vite build`. **The `tsc` step is a no-op** (root `tsconfig.json` has `files: []`); `vite build` is the real gate |
 | `npm run preview` | serve the production build locally |
 | `npx tsc -b` | the actual type-check. 4 **pre-existing** errors today (`button.tsx` `@/` alias, `vite.config.ts` node globals) — ignore those, keep new code clean. Emits stray `vite.config.js`/`.d.ts` at repo root; delete them |
