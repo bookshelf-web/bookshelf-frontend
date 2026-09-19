@@ -1,19 +1,16 @@
-# Usando Node 22 para compatibilidade com Vite 7+
+# Node 22 for Vite 7+ compatibility
 FROM node:22-alpine
 
 WORKDIR /app
 
-# Copia os arquivos de manifesto do Yarn
-COPY package.json yarn.lock* ./
+# Install dependencies from the lockfile (the project uses npm)
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Instala as dependências usando Yarn
-RUN yarn install
-
-# Copia o resto dos arquivos do projeto
 COPY . .
 
-# Expõe a porta padrão do Vite
+# Default Vite dev server port
 EXPOSE 5173
 
-# Comando para rodar o modo dev aceitando conexões externas
-CMD ["yarn", "dev", "--host"]
+# Dev mode, accepting external connections
+CMD ["npm", "run", "dev", "--", "--host"]
