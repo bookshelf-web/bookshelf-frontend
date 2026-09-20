@@ -143,6 +143,7 @@ const en: typeof ptBR = {
     subtitle: 'Review new registrations and proposed edits',
     tabBooks: 'New registrations',
     tabRevisions: 'Proposed edits',
+    searchPlaceholder: 'Search by title, author or ISBN...',
     booksEmpty: 'No registrations waiting for review',
     revisionsEmpty: 'No edits waiting for a decision',
     confirm: 'Confirm',

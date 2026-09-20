@@ -127,6 +127,10 @@ describe('adminCatalogService', () => {
     expect(http.get).toHaveBeenNthCalledWith(1, '/admin/catalog/books', {
       params: { review: 'pending_review', status: 'active', limit: 50 },
     })
+    await adminCatalogService.listPendingBooks('clean')
+    expect(http.get).toHaveBeenLastCalledWith('/admin/catalog/books', {
+      params: { review: 'pending_review', status: 'active', limit: 50, search: 'clean' },
+    })
     expect(http.get).toHaveBeenNthCalledWith(2, '/admin/catalog/revisions', {
       params: { status: 'pending', limit: 50 },
     })

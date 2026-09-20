@@ -3,9 +3,9 @@ import type { CatalogBook, CatalogRevision, Paginated } from '../types/catalog';
 
 export const adminCatalogService = {
   /** Books registered by readers that no admin has reviewed yet. */
-  async listPendingBooks(): Promise<{ books: CatalogBook[]; pagination: Paginated }> {
+  async listPendingBooks(search?: string): Promise<{ books: CatalogBook[]; pagination: Paginated }> {
     const response = await api.get<{ books: CatalogBook[]; pagination: Paginated }>('/admin/catalog/books', {
-      params: { review: 'pending_review', status: 'active', limit: 50 },
+      params: { review: 'pending_review', status: 'active', limit: 50, ...(search && { search }) },
     });
     return response.data;
   },

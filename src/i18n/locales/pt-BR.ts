@@ -141,6 +141,7 @@ const ptBR = {
     subtitle: 'Revise cadastros novos e edições propostas',
     tabBooks: 'Novos cadastros',
     tabRevisions: 'Edições propostas',
+    searchPlaceholder: 'Buscar por título, autor ou ISBN...',
     booksEmpty: 'Nenhum cadastro aguardando revisão',
     revisionsEmpty: 'Nenhuma edição aguardando decisão',
     confirm: 'Confirmar',

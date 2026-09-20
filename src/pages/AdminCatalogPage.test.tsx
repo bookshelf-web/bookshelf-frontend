@@ -85,6 +85,15 @@ describe('AdminCatalogPage new registrations', () => {
     expect(await screen.findByTestId('catalog-book-b2')).toHaveTextContent('Sem ISBN')
   })
 
+  it('searches the queue', async () => {
+    renderPage()
+    await screen.findByTestId('catalog-book-b1')
+
+    await userEvent.type(screen.getByTestId('catalog-search'), 'clean')
+
+    await waitFor(() => expect(service.listPendingBooks).toHaveBeenLastCalledWith('clean'))
+  })
+
   it('confirms a book and reloads the queue', async () => {
     service.confirmBook.mockResolvedValue(book('b1', { reviewStatus: 'reviewed' }))
     renderPage()

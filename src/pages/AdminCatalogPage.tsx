@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Search } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { AppHeader } from '../components/AppHeader'
 import { getApiErrorMessage } from '../lib/apiError'
@@ -36,13 +37,26 @@ export function AdminCatalogPage() {
   const [tab, setTab] = useState<Tab>('books')
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [version, setVersion] = useState(0)
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [actionError, setActionError] = useState('')
   const [notes, setNotes] = useState<Record<string, string>>({})
 
+  const appliedSearch = useRef('')
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const next = searchInput.trim()
+      if (next === appliedSearch.current) return
+      appliedSearch.current = next
+      setSearch(next)
+    }, 300)
+    return () => clearTimeout(id)
+  }, [searchInput])
+
   useEffect(() => {
     let cancelled = false
-    Promise.all([adminCatalogService.listPendingBooks(), adminCatalogService.listPendingRevisions()])
+    Promise.all([adminCatalogService.listPendingBooks(search), adminCatalogService.listPendingRevisions()])
       .then(([books, revisions]) => {
         if (!cancelled) setLoaded({ books: books.books, revisions: revisions.revisions, error: '' })
       })
@@ -54,7 +68,7 @@ export function AdminCatalogPage() {
     return () => {
       cancelled = true
     }
-  }, [version])
+  }, [version, search])
 
   const run = async (id: string, action: () => Promise<unknown>) => {
     setBusyId(id)
@@ -102,6 +116,21 @@ export function AdminCatalogPage() {
             </Button>
           ))}
         </div>
+
+        {tab === 'books' && (
+          <div className="relative" role="search">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+            <input
+              type="search"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder={t('adminCatalog.searchPlaceholder')}
+              aria-label={t('adminCatalog.searchPlaceholder')}
+              data-testid="catalog-search"
+              className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
+        )}
 
         {error && (
           <p className="text-sm text-red-600" role="alert" data-testid="catalog-error">
