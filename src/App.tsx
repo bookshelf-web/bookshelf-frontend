@@ -6,6 +6,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { AccountPage } from './pages/AccountPage'
 import { CompanyFormPage } from './pages/CompanyFormPage'
 import { AdminCompaniesPage } from './pages/AdminCompaniesPage'
+import { AdminUsersPage } from './pages/AdminUsersPage'
 import { RequireAuth, RequireRole } from './components/RouteGuards'
 import { homePathFor } from './lib/roles'
 
@@ -45,6 +46,14 @@ function App() {
         element={
           <RequireRole role="admin">
             <AdminCompaniesPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <RequireRole role="admin">
+            <AdminUsersPage />
           </RequireRole>
         }
       />

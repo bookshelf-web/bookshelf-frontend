@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Building2, ShieldCheck } from 'lucide-react'
+import { Building2, ShieldCheck, Users } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { AppHeader } from '../components/AppHeader'
 import { RoleSelector } from '../components/RoleSelector'
@@ -14,7 +14,7 @@ import type { Company } from '../types/company'
 
 export function AccountPage() {
   const { t } = useTranslation()
-  const { roles, hasRole, applySession } = useAuth()
+  const { user, roles, hasRole, applySession } = useAuth()
 
   const savedRoles = roles.filter((role): role is SelfServiceRole =>
     (SELF_SERVICE_ROLES as string[]).includes(role),
@@ -25,6 +25,14 @@ export function AccountPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saveError, setSaveError] = useState('')
+
+  const [name, setName] = useState(user?.name ?? '')
+  const [nameStatus, setNameStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [nameError, setNameError] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [passwordStatus, setPasswordStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [passwordError, setPasswordError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -61,6 +69,35 @@ export function AccountPage() {
     }
   }
 
+  const handleSaveName = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setNameStatus('saving')
+    setNameError('')
+    try {
+      const response = await meService.updateProfile(name)
+      applySession(response)
+      setNameStatus('saved')
+    } catch (err) {
+      setNameError(getApiErrorMessage(err, 'profile.nameError'))
+      setNameStatus('error')
+    }
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordStatus('saving')
+    setPasswordError('')
+    try {
+      await meService.changePassword(currentPassword, newPassword)
+      setCurrentPassword('')
+      setNewPassword('')
+      setPasswordStatus('saved')
+    } catch (err) {
+      setPasswordError(getApiErrorMessage(err, 'profile.passwordError'))
+      setPasswordStatus('error')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" data-testid="account-page">
       <AppHeader />
@@ -79,6 +116,106 @@ export function AccountPage() {
             {t('account.libraryOff')}
           </div>
         )}
+
+        <section className="bg-white rounded-xl shadow-sm p-6 space-y-6" aria-labelledby="profile-title">
+          <div>
+            <h3 id="profile-title" className="text-xl font-bold text-gray-900 mb-4">
+              {t('profile.title')}
+            </h3>
+            <form onSubmit={handleSaveName} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <label htmlFor="profile-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('profile.name')}
+                </label>
+                <input
+                  id="profile-name"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    setNameStatus('idle')
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  data-testid="profile-name-input"
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="bg-purple-600 hover:bg-purple-700"
+                disabled={nameStatus === 'saving' || name.trim() === '' || name === user?.name}
+                data-testid="profile-name-save"
+              >
+                {t('profile.saveName')}
+              </Button>
+            </form>
+            {nameStatus === 'saved' && (
+              <p className="mt-2 text-sm text-green-600" role="status" data-testid="profile-name-saved">
+                {t('profile.nameSaved')}
+              </p>
+            )}
+            {nameError && (
+              <p className="mt-2 text-sm text-red-600" role="alert" data-testid="profile-name-error">
+                {nameError}
+              </p>
+            )}
+          </div>
+
+          <form onSubmit={handleChangePassword} className="space-y-3 border-t border-gray-100 pt-6">
+            <h4 className="text-lg font-semibold text-gray-900">{t('profile.passwordTitle')}</h4>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label htmlFor="profile-current-password" className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('profile.currentPassword')}
+                </label>
+                <input
+                  id="profile-current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  data-testid="profile-current-password"
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="profile-new-password" className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('profile.newPassword')}
+                </label>
+                <input
+                  id="profile-new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  data-testid="profile-new-password"
+                  autoComplete="new-password"
+                  minLength={6}
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500">{t('profile.passwordHint')}</p>
+              </div>
+            </div>
+            {passwordStatus === 'saved' && (
+              <p className="text-sm text-green-600" role="status" data-testid="profile-password-saved">
+                {t('profile.passwordSaved')}
+              </p>
+            )}
+            {passwordError && (
+              <p className="text-sm text-red-600" role="alert" data-testid="profile-password-error">
+                {passwordError}
+              </p>
+            )}
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={passwordStatus === 'saving'}
+              data-testid="profile-password-save"
+            >
+              {t('profile.savePassword')}
+            </Button>
+          </form>
+        </section>
 
         <section className="bg-white rounded-xl shadow-sm p-6" aria-labelledby="roles-title">
           <h3 id="roles-title" className="text-xl font-bold text-gray-900 mb-4">
@@ -178,6 +315,14 @@ export function AccountPage() {
             <h3 id="admin-title" className="text-xl font-bold text-gray-900 mb-4">
               {t('account.adminTitle')}
             </h3>
+            <Link
+              to="/admin/users"
+              className="mr-6 inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-800"
+              data-testid="admin-users-link"
+            >
+              <Users className="w-4 h-4" aria-hidden="true" />
+              {t('account.adminUsers')}
+            </Link>
             <Link
               to="/admin/companies"
               className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-800"

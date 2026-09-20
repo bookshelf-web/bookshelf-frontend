@@ -8,7 +8,12 @@ import type { Role, User } from '../types/auth'
 import type { Company } from '../types/company'
 
 vi.mock('../services/me.service', () => ({
-  meService: { getProfile: vi.fn(), updateRoles: vi.fn() },
+  meService: {
+    getProfile: vi.fn(),
+    updateRoles: vi.fn(),
+    updateProfile: vi.fn(),
+    changePassword: vi.fn(),
+  },
 }))
 
 const applySession = vi.fn()
@@ -126,6 +131,59 @@ describe('AccountPage roles', () => {
   })
 })
 
+describe('AccountPage profile', () => {
+  it('saves a new display name and applies the fresh session', async () => {
+    service.updateProfile.mockResolvedValue(session(['reader']))
+    renderPage()
+
+    expect(screen.getByTestId('profile-name-save')).toBeDisabled()
+    await userEvent.clear(screen.getByTestId('profile-name-input'))
+    await userEvent.type(screen.getByTestId('profile-name-input'), 'Ana Souza')
+    await userEvent.click(screen.getByTestId('profile-name-save'))
+
+    expect(service.updateProfile).toHaveBeenCalledWith('Ana Souza')
+    expect(applySession).toHaveBeenCalled()
+    expect(await screen.findByTestId('profile-name-saved')).toBeInTheDocument()
+  })
+
+  it('shows the error when the name cannot be saved', async () => {
+    service.updateProfile.mockRejectedValue(new Error('offline'))
+    renderPage()
+
+    await userEvent.type(screen.getByTestId('profile-name-input'), ' Jr')
+    await userEvent.click(screen.getByTestId('profile-name-save'))
+
+    expect(await screen.findByTestId('profile-name-error')).toHaveTextContent('offline')
+  })
+
+  it('changes the password and clears the fields', async () => {
+    service.changePassword.mockResolvedValue(undefined)
+    renderPage()
+
+    await userEvent.type(screen.getByTestId('profile-current-password'), 'old-secret')
+    await userEvent.type(screen.getByTestId('profile-new-password'), 'new-secret')
+    await userEvent.click(screen.getByTestId('profile-password-save'))
+
+    expect(service.changePassword).toHaveBeenCalledWith('old-secret', 'new-secret')
+    expect(await screen.findByTestId('profile-password-saved')).toBeInTheDocument()
+    expect(screen.getByTestId('profile-current-password')).toHaveValue('')
+    expect(screen.getByTestId('profile-new-password')).toHaveValue('')
+  })
+
+  it('shows the localised error for a wrong current password', async () => {
+    service.changePassword.mockRejectedValue({
+      response: { data: { code: 'INVALID_CURRENT_PASSWORD', error: 'x' } },
+    })
+    renderPage()
+
+    await userEvent.type(screen.getByTestId('profile-current-password'), 'guess')
+    await userEvent.type(screen.getByTestId('profile-new-password'), 'new-secret')
+    await userEvent.click(screen.getByTestId('profile-password-save'))
+
+    expect(await screen.findByTestId('profile-password-error')).toHaveTextContent('A senha atual está incorreta.')
+  })
+})
+
 describe('AccountPage companies', () => {
   it('tells non-sellers how to unlock companies', () => {
     renderPage()
@@ -169,6 +227,13 @@ describe('AccountPage companies', () => {
 })
 
 describe('AccountPage administration', () => {
+  it('links admins to the user management page', async () => {
+    roles = ['reader', 'admin']
+    renderPage()
+
+    await waitFor(() => expect(screen.getByTestId('admin-users-link')).toHaveAttribute('href', '/admin/users'))
+  })
+
   it('links admins to the company verification page', async () => {
     roles = ['reader', 'admin']
     renderPage()

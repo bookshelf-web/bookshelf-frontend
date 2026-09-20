@@ -3,6 +3,7 @@ import api from './api'
 import { authService } from './auth.service'
 import { booksService } from './books.service'
 import { companiesService } from './companies.service'
+import { adminUsersService } from './adminUsers.service'
 import { meService } from './me.service'
 
 vi.mock('./api', () => ({
@@ -86,12 +87,58 @@ describe('booksService', () => {
   })
 })
 
+describe('adminUsersService', () => {
+  it('lists users with the query', async () => {
+    http.get.mockResolvedValue({ data: { users: [], pagination: {} } })
+
+    await adminUsersService.list({ page: 2, search: 'ana', role: 'seller', status: 'suspended' })
+
+    expect(http.get).toHaveBeenCalledWith('/admin/users', {
+      params: { page: 2, search: 'ana', role: 'seller', status: 'suspended' },
+    })
+  })
+
+  it('lists without a query', async () => {
+    http.get.mockResolvedValue({ data: {} })
+
+    await adminUsersService.list()
+
+    expect(http.get).toHaveBeenCalledWith('/admin/users', { params: {} })
+  })
+
+  it('updates a user and unwraps the account', async () => {
+    http.patch.mockResolvedValue({ data: { user: { id: 'u1', status: 'suspended' } } })
+
+    const user = await adminUsersService.update('u1', { status: 'suspended' })
+
+    expect(http.patch).toHaveBeenCalledWith('/admin/users/u1', { status: 'suspended' })
+    expect(user.status).toBe('suspended')
+  })
+})
+
 describe('meService', () => {
   it('loads the profile', async () => {
     http.get.mockResolvedValue({ data: { user: { id: 'u1' }, companies: [] } })
 
     expect(await meService.getProfile()).toEqual({ user: { id: 'u1' }, companies: [] })
     expect(http.get).toHaveBeenCalledWith('/me')
+  })
+
+  it('updates the profile name', async () => {
+    http.patch.mockResolvedValue({ data: { token: 't', user: { name: 'Ana Souza' } } })
+
+    const result = await meService.updateProfile('Ana Souza')
+
+    expect(http.patch).toHaveBeenCalledWith('/me/profile', { name: 'Ana Souza' })
+    expect(result.user.name).toBe('Ana Souza')
+  })
+
+  it('changes the password', async () => {
+    http.patch.mockResolvedValue({ data: { message: 'ok' } })
+
+    await meService.changePassword('old-pass', 'new-pass')
+
+    expect(http.patch).toHaveBeenCalledWith('/me/password', { currentPassword: 'old-pass', newPassword: 'new-pass' })
   })
 
   it('updates roles and returns the fresh session', async () => {

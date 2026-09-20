@@ -8,6 +8,15 @@ export const meService = {
     return response.data;
   },
 
+  async updateProfile(name: string): Promise<AuthResponse> {
+    const response = await api.patch<AuthResponse>('/me/profile', { name });
+    return response.data;
+  },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await api.patch('/me/password', { currentPassword, newPassword });
+  },
+
   /** Adds/removes roles. The response carries a fresh token because roles live in the JWT. */
   async updateRoles(change: { add?: SelfServiceRole[]; remove?: SelfServiceRole[] }): Promise<AuthResponse> {
     const response = await api.patch<AuthResponse>('/me/roles', change);

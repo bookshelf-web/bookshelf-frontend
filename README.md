@@ -35,6 +35,8 @@ the [BookShelf API](https://github.com/bookshelf-web/bookshelf-api).
 - Accounts with combinable **roles**: personal library, buy in the bookstore, sell in the bookstore
   (chosen at sign-up, changeable in *My account*); routes and navigation follow the roles
 - Company registration for sellers (CNPJ validated by the API) and an admin page to verify companies
+- Admin user management: search, edit name/email/roles, suspend or reactivate accounts (audited)
+- Profile: change your name and password from *My account*
 - Dashboard with reading statistics (total, to read, reading, read)
 - Add, edit and delete books (title, author, ISBN, publisher, year, pages, language, description)
 - Star rating (1-5) and personal notes on every book
@@ -106,7 +108,7 @@ build, `VITE_API_URL` is read from the repository's *Actions variables*.
 
 ```
 src/
-  pages/        route components (Login, Register, Dashboard, Account, CompanyForm, AdminCompanies)
+  pages/        route components (Login, Register, Dashboard, Account, CompanyForm, AdminCompanies, AdminUsers)
   components/   shared components; ui/ holds shadcn primitives
   contexts/     AuthContext (session state)
   hooks/        data loading (useBookLibrary) and theme (useTheme)
