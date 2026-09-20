@@ -27,6 +27,7 @@ export function DashboardPage() {
   const [bookToDelete, setBookToDelete] = useState<Book | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [pendingNotice, setPendingNotice] = useState(false)
 
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
@@ -72,6 +73,7 @@ export function DashboardPage() {
   }
 
   const handleAddBook = () => {
+    setPendingNotice(false)
     setBookToEdit(null)
     setShowAddBookModal(true)
   }
@@ -120,6 +122,16 @@ export function DashboardPage() {
             role="alert"
           >
             {visibleError}
+          </div>
+        )}
+
+        {pendingNotice && (
+          <div
+            className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm"
+            role="status"
+            data-testid="edit-pending-notice"
+          >
+            {t('pendingEdit.notice')}
           </div>
         )}
 
@@ -306,7 +318,10 @@ export function DashboardPage() {
           setBookToEdit(null)
         }}
         bookToEdit={bookToEdit}
-        onSuccess={reload}
+        onSuccess={({ pending }) => {
+          setPendingNotice(pending)
+          reload()
+        }}
       />
 
       <DeleteConfirmModal

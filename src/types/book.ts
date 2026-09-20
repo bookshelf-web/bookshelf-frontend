@@ -6,6 +6,7 @@ export interface Book {
   author: string;
   isbn?: string | null;
   publisher?: string | null;
+  edition?: string | null;
   publishedYear?: number | null;
   pages?: number | null;
   language?: string | null;
@@ -17,6 +18,11 @@ export interface Book {
   startedAt?: string | null;
   finishedAt?: string | null;
   userId: string;
+  catalogBookId?: string;
+  /** How the shared catalog treats this book. */
+  catalog?: { status: string; reviewStatus: string };
+  /** The reader's own proposed edit, waiting for an admin. */
+  pendingRevision?: { id: string; changes: Record<string, { from: unknown; to: unknown }> } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -26,6 +32,7 @@ export interface CreateBookRequest {
   author: string;
   isbn?: string;
   publisher?: string;
+  edition?: string;
   publishedYear?: number;
   pages?: number;
   language?: string;

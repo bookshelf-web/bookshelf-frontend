@@ -13,7 +13,8 @@ interface BookModalProps {
   isOpen: boolean
   onClose: () => void
   bookToEdit?: Book | null
-  onSuccess: () => void
+  /** `pending` is true when the descriptive changes were sent for an admin's approval. */
+  onSuccess: (outcome: { pending: boolean }) => void
 }
 
 const INPUT_CLASS =
@@ -39,6 +40,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
   const [author, setAuthor] = useState(bookToEdit?.author ?? '')
   const [isbn, setIsbn] = useState(bookToEdit?.isbn ?? '')
   const [publisher, setPublisher] = useState(bookToEdit?.publisher ?? '')
+  const [edition, setEdition] = useState(bookToEdit?.edition ?? '')
   const [publishedYear, setPublishedYear] = useState(bookToEdit?.publishedYear?.toString() ?? '')
   const [pages, setPages] = useState(bookToEdit?.pages?.toString() ?? '')
   const [language, setLanguage] = useState(bookToEdit?.language ?? '')
@@ -54,6 +56,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
     setAuthor(suggestion.author)
     setIsbn(suggestion.isbn ?? '')
     setPublisher(suggestion.publisher ?? '')
+    setEdition('')
     setPublishedYear(suggestion.publishedYear?.toString() ?? '')
     setPages(suggestion.pages?.toString() ?? '')
     setLanguage(suggestion.language ?? '')
@@ -67,6 +70,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
     setError('')
 
     try {
+      let pending = false
       if (bookToEdit) {
         // On edit an emptied field is sent as null so the API clears it.
         const update: UpdateBookRequest = {
@@ -74,6 +78,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
           author,
           isbn: isbn || null,
           publisher: publisher || null,
+          edition: edition || null,
           publishedYear: publishedYear ? parseInt(publishedYear) : null,
           pages: pages ? parseInt(pages) : null,
           language: language || null,
@@ -82,13 +87,15 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
           notes: notes || null,
           coverUrl: coverUrl || null,
         }
-        await booksService.updateBook(bookToEdit.id, update)
+        const { book } = await booksService.updateBook(bookToEdit.id, update)
+        pending = !!book.pendingRevision
       } else {
         const create: CreateBookRequest = {
           title,
           author,
           ...(isbn && { isbn }),
           ...(publisher && { publisher }),
+          ...(edition && { edition }),
           ...(publishedYear && { publishedYear: parseInt(publishedYear) }),
           ...(pages && { pages: parseInt(pages) }),
           ...(language && { language }),
@@ -100,7 +107,7 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
         await booksService.createBook(create)
       }
 
-      onSuccess()
+      onSuccess({ pending })
       onClose()
     } catch (err) {
       setError(getApiErrorMessage(err, 'bookForm.genericError'))
@@ -207,6 +214,22 @@ function BookForm({ onClose, bookToEdit, onSuccess }: Omit<BookModalProps, 'isOp
                 onChange={(e) => setPublisher(e.target.value)}
                 className={INPUT_CLASS}
                 placeholder={t('bookForm.fields.publisherPlaceholder')}
+                disabled={loading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="edition" className={LABEL_CLASS}>
+                {t('bookForm.fields.edition')}
+              </label>
+              <input
+                id="edition"
+                type="text"
+                value={edition}
+                onChange={(e) => setEdition(e.target.value)}
+                className={INPUT_CLASS}
+                placeholder={t('bookForm.fields.editionPlaceholder')}
+                data-testid="book-edition-input"
                 disabled={loading}
               />
             </div>

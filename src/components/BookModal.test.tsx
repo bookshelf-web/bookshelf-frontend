@@ -127,6 +127,38 @@ describe('BookModal', () => {
     })
   })
 
+  it('reports that the edit awaits approval when the API answers with a pending revision', async () => {
+    service.updateBook.mockResolvedValue({
+      message: 'ok',
+      book: { ...existing, pendingRevision: { id: 'r1', changes: {} } },
+    })
+    const { onSuccess } = setup(existing)
+
+    await userEvent.clear(screen.getByLabelText(/Título/))
+    await userEvent.type(screen.getByLabelText(/Título/), 'Outro título')
+    await userEvent.click(screen.getByTestId('save-book-button'))
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith({ pending: true }))
+  })
+
+  it('reports a plain save as not pending', async () => {
+    const { onSuccess } = setup(existing)
+
+    await userEvent.click(screen.getByTestId('save-book-button'))
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith({ pending: false }))
+  })
+
+  it('sends the edition when creating and clears it when emptied on edit', async () => {
+    const { onSuccess } = setup()
+    await userEvent.type(screen.getByLabelText(/Título/), 'T')
+    await userEvent.type(screen.getByLabelText(/Autor/), 'A')
+    await userEvent.type(screen.getByTestId('book-edition-input'), '2ª edição')
+    await userEvent.click(screen.getByTestId('save-book-button'))
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled())
+    expect(service.createBook).toHaveBeenCalledWith(expect.objectContaining({ edition: '2ª edição' }))
+  })
+
   it('does not offer the import when editing', () => {
     setup(existing)
     expect(screen.queryByTestId('google-books-search')).not.toBeInTheDocument()

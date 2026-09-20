@@ -56,6 +56,15 @@ export function BookCard({ book, onEdit, onDelete, onStatusChange }: BookCardPro
         </div>
       </div>
 
+      {book.pendingRevision && (
+        <p
+          className="mb-2 inline-block rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800"
+          data-testid={`book-pending-${book.id}`}
+        >
+          {t('pendingEdit.badge')}
+        </p>
+      )}
+
       {book.rating ? (
         <div className="mb-2">
           <StarRating rating={book.rating} testId={`book-rating-${book.id}`} />

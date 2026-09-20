@@ -72,6 +72,9 @@ public/          404.html — SPA-routing fallback for GitHub Pages
   Guard routes with `RequireAuth`/`RequireRole` (`components/RouteGuards.tsx`) and read them with
   `useAuth().hasRole()`. A role change returns a fresh token: pass it to `applySession()`. Readers land on
   `/dashboard`, everyone else on `/account` (`lib/roles.ts#homePathFor`).
+- **Catalog:** book data (title, author, ISBN...) comes from the shared catalog; a reader's edit to a
+  reviewed book returns `pendingRevision` instead of applying (show the badge/notice, never assume the new
+  title). ISBNs are validated by the API (`INVALID_ISBN`).
 - **Auth:** read the session with `useAuth()`. The 401 response interceptor in
   `api.ts` already clears storage and hard-redirects to `${BASE_URL}login` — do
   not duplicate that.

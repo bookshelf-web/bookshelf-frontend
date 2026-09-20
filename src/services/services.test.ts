@@ -3,6 +3,7 @@ import api from './api'
 import { authService } from './auth.service'
 import { booksService } from './books.service'
 import { companiesService } from './companies.service'
+import { adminCatalogService } from './adminCatalog.service'
 import { adminUsersService } from './adminUsers.service'
 import { meService } from './me.service'
 
@@ -113,6 +114,45 @@ describe('adminUsersService', () => {
 
     expect(http.patch).toHaveBeenCalledWith('/admin/users/u1', { status: 'suspended' })
     expect(user.status).toBe('suspended')
+  })
+})
+
+describe('adminCatalogService', () => {
+  it('lists the books and revisions waiting for a decision', async () => {
+    http.get.mockResolvedValue({ data: { books: [], revisions: [], pagination: {} } })
+
+    await adminCatalogService.listPendingBooks()
+    await adminCatalogService.listPendingRevisions()
+
+    expect(http.get).toHaveBeenNthCalledWith(1, '/admin/catalog/books', {
+      params: { review: 'pending_review', status: 'active', limit: 50 },
+    })
+    expect(http.get).toHaveBeenNthCalledWith(2, '/admin/catalog/revisions', {
+      params: { status: 'pending', limit: 50 },
+    })
+  })
+
+  it('confirms a book and toggles its visibility', async () => {
+    http.post.mockResolvedValue({ data: { book: { id: 'b1', reviewStatus: 'reviewed' } } })
+    http.patch.mockResolvedValue({ data: { book: { id: 'b1', status: 'hidden' } } })
+
+    expect((await adminCatalogService.confirmBook('b1')).reviewStatus).toBe('reviewed')
+    expect(http.post).toHaveBeenCalledWith('/admin/catalog/books/b1/review')
+
+    await adminCatalogService.setHidden('b1', true, 'nonsense')
+    await adminCatalogService.setHidden('b1', false)
+    expect(http.patch).toHaveBeenNthCalledWith(1, '/admin/catalog/books/b1/visibility', { hidden: true, reason: 'nonsense' })
+    expect(http.patch).toHaveBeenNthCalledWith(2, '/admin/catalog/books/b1/visibility', { hidden: false })
+  })
+
+  it('decides a revision with an optional note', async () => {
+    http.post.mockResolvedValue({ data: { revision: { id: 'r1', status: 'approved' } } })
+
+    await adminCatalogService.decideRevision('r1', 'approve', 'ok')
+    await adminCatalogService.decideRevision('r1', 'reject')
+
+    expect(http.post).toHaveBeenNthCalledWith(1, '/admin/catalog/revisions/r1/decision', { decision: 'approve', note: 'ok' })
+    expect(http.post).toHaveBeenNthCalledWith(2, '/admin/catalog/revisions/r1/decision', { decision: 'reject' })
   })
 })
 

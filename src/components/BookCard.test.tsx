@@ -47,6 +47,18 @@ describe('BookCard', () => {
     expect(card.textContent?.startsWith('Dom Casmurro')).toBe(true)
   })
 
+  it('marks a book whose descriptive edit awaits an admin', () => {
+    setup({ pendingRevision: { id: 'r1', changes: { title: { from: 'A', to: 'B' } } } })
+
+    expect(screen.getByTestId('book-pending-b1')).toHaveTextContent('Edição aguardando aprovação')
+  })
+
+  it('shows no marker without a pending edit', () => {
+    setup({ pendingRevision: null })
+
+    expect(screen.queryByTestId('book-pending-b1')).not.toBeInTheDocument()
+  })
+
   it('reflects the status and reports changes', async () => {
     const { onStatusChange } = setup()
     const select = screen.getByTestId('book-status-b1')
