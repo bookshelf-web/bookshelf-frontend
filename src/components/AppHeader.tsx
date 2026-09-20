@@ -5,6 +5,7 @@ import { Button } from './ui/button'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { useAuth } from '../contexts/AuthContext'
+import { useCartCount } from '../contexts/CartContext'
 import { homePathFor } from '../lib/roles'
 
 const NAV_LINK = 'text-sm font-medium text-gray-600 hover:text-gray-900'
@@ -12,6 +13,7 @@ const NAV_LINK = 'text-sm font-medium text-gray-600 hover:text-gray-900'
 export function AppHeader() {
   const { t } = useTranslation()
   const { user, logout, hasRole, roles } = useAuth()
+  const count = useCartCount()
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm" data-testid="app-header">
@@ -31,6 +33,34 @@ export function AppHeader() {
               <Link to="/dashboard" className={NAV_LINK} data-testid="nav-library">
                 {t('nav.library')}
               </Link>
+            )}
+            {hasRole('buyer') && (
+              <>
+                <Link to="/store" className={NAV_LINK} data-testid="nav-store">
+                  {t('nav.store')}
+                </Link>
+                <Link to="/cart" className={NAV_LINK} data-testid="nav-cart">
+                  {t('nav.cart')}
+                  {count > 0 && (
+                    <span className="ml-1 rounded-full bg-purple-600 px-1.5 text-xs text-white" data-testid="cart-count">
+                      {count}
+                    </span>
+                  )}
+                </Link>
+                <Link to="/orders" className={NAV_LINK} data-testid="nav-orders">
+                  {t('nav.orders')}
+                </Link>
+              </>
+            )}
+            {hasRole('seller') && (
+              <>
+                <Link to="/sell" className={NAV_LINK} data-testid="nav-sell">
+                  {t('nav.sell')}
+                </Link>
+                <Link to="/sales" className={NAV_LINK} data-testid="nav-sales">
+                  {t('nav.sales')}
+                </Link>
+              </>
             )}
             <Link to="/account" className={NAV_LINK} data-testid="nav-account">
               {t('nav.account')}

@@ -8,6 +8,11 @@ import { CompanyFormPage } from './pages/CompanyFormPage'
 import { AdminCompaniesPage } from './pages/AdminCompaniesPage'
 import { AdminUsersPage } from './pages/AdminUsersPage'
 import { AdminCatalogPage } from './pages/AdminCatalogPage'
+import { StorePage } from './pages/StorePage'
+import { CartPage } from './pages/CartPage'
+import { OrdersPage } from './pages/OrdersPage'
+import { OrderPage } from './pages/OrderPage'
+import { SellPage } from './pages/SellPage'
 import { RequireAuth, RequireRole } from './components/RouteGuards'
 import { homePathFor } from './lib/roles'
 
@@ -63,6 +68,54 @@ function App() {
         element={
           <RequireRole role="admin">
             <AdminCatalogPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/store"
+        element={
+          <RequireRole role="buyer">
+            <StorePage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <RequireRole role="buyer">
+            <CartPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <RequireRole role="buyer">
+            <OrdersPage mode="purchases" />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/orders/:id"
+        element={
+          <RequireRole role="buyer">
+            <OrderPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/sell"
+        element={
+          <RequireRole role="seller">
+            <SellPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/sales"
+        element={
+          <RequireRole role="seller">
+            <OrdersPage mode="sales" />
           </RequireRole>
         }
       />
