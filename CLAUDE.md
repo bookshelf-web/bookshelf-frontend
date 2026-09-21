@@ -23,7 +23,7 @@ The project is intentionally **pre-1.0**.
 
 ```
 src/
-  pages/         one component per route — Login, Register, Dashboard, Account, CompanyForm, AdminCompanies
+  pages/         one component per route — Login, Register, Dashboard, Account, CompanyForm, Store, Cart, Orders, Order, Sell, AdminCompanies, AdminMarketplace
   components/     shared components; components/ui/ is reserved for shadcn primitives
                  BookModal, DeleteConfirmModal, LanguageSwitcher
   contexts/      AuthContext — { user, token, roles, hasRole, login, register, applySession, logout, isAuthenticated }
@@ -75,6 +75,9 @@ public/          404.html — SPA-routing fallback for GitHub Pages
 - **Catalog:** book data (title, author, ISBN...) comes from the shared catalog; a reader's edit to a
   reviewed book returns `pendingRevision` instead of applying (show the badge/notice, never assume the new
   title). ISBNs are validated by the API (`INVALID_ISBN`).
+- **Bookstore:** money is integer cents (`lib/money.ts`); the cart (`CartContext`) is per seller because an
+  order has a single seller. Payments are **simulated only** — always render `TestEnvironmentBanner` around
+  them, never present the Pix code as payable, and never add a real payment SDK.
 - **Auth:** read the session with `useAuth()`. The 401 response interceptor in
   `api.ts` already clears storage and hard-redirects to `${BASE_URL}login` — do
   not duplicate that.

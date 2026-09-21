@@ -39,6 +39,11 @@ the [BookShelf API](https://github.com/bookshelf-web/bookshelf-api).
 - Profile: change your name and password from *My account*
 - Shared catalog: a book exists once (by ISBN); edits to a reviewed book are sent for admin approval and
   flagged on the card, and admins moderate new registrations and proposed edits at `/admin/catalog`
+- Second-hand bookstore (`/store`): browse and filter listings, a cart checked out seller by seller, shipping
+  or pickup, orders (`/orders`), and for sellers `/sell` and `/sales`; admins moderate orders and listings at
+  `/admin/marketplace`
+- Simulated payments: Pix and test cards only, with a permanent "test environment" banner. The Pix code is
+  deliberately not payable at a bank; the API refuses payments in production unless it is explicitly enabled
 - Dashboard with reading statistics (total, to read, reading, read)
 - Add, edit and delete books (title, author, ISBN, publisher, year, pages, language, description)
 - Star rating (1-5) and personal notes on every book
@@ -110,9 +115,9 @@ build, `VITE_API_URL` is read from the repository's *Actions variables*.
 
 ```
 src/
-  pages/        route components (Login, Register, Dashboard, Account, CompanyForm, AdminCompanies, AdminUsers, AdminCatalog)
+  pages/        route components (Login, Register, Dashboard, Account, CompanyForm, Store, Cart, Orders, Order, Sell, Admin*)
   components/   shared components; ui/ holds shadcn primitives
-  contexts/     AuthContext (session state)
+  contexts/     AuthContext (session) and CartContext (bookstore cart, kept in localStorage)
   hooks/        data loading (useBookLibrary) and theme (useTheme)
   services/     shared Axios instance + typed API calls
   lib/          API error mapping, theme and option helpers, service worker registration
@@ -177,8 +182,8 @@ own copy:
 - [x] Book cover images
 - [x] Import book data from the Google Books API
 - [x] Accounts with roles and company registration
-- [ ] Second-hand bookstore: shared catalog with admin moderation, listings, cart and orders
-- [ ] Payments (simulated gateway)
+- [x] Second-hand bookstore: shared catalog with admin moderation, listings, cart and orders
+- [x] Payments (simulated gateway)
 - [ ] Upload cover images instead of linking to a URL
 - [ ] Reading progress (current page)
 
