@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { BookMarked, Building2, ShieldCheck, Users } from 'lucide-react'
+import { BookMarked, Building2, ShieldCheck, Store, Users } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { AppHeader } from '../components/AppHeader'
 import { RoleSelector } from '../components/RoleSelector'
@@ -322,6 +322,14 @@ export function AccountPage() {
             >
               <BookMarked className="w-4 h-4" aria-hidden="true" />
               {t('account.adminCatalog')}
+            </Link>
+            <Link
+              to="/admin/marketplace"
+              className="mr-6 inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-800"
+              data-testid="admin-marketplace-link"
+            >
+              <Store className="w-4 h-4" aria-hidden="true" />
+              {t('account.adminMarket')}
             </Link>
             <Link
               to="/admin/users"

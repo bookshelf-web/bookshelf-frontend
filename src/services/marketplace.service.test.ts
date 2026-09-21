@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 import api from './api'
+import { adminMarketplaceService } from './adminMarketplace.service'
 import { catalogService } from './catalog.service'
 import { marketplaceService } from './marketplace.service'
 
@@ -81,5 +82,29 @@ describe('catalogService', () => {
     await catalogService.search('clean code')
 
     expect(http.get).toHaveBeenCalledWith('/catalog/books', { params: { search: 'clean code', limit: 8 } })
+  })
+})
+
+describe('adminMarketplaceService', () => {
+  it('lists orders and listings for moderation', async () => {
+    http.get.mockResolvedValue({ data: { orders: [], listings: [] } })
+
+    await adminMarketplaceService.orders({ status: 'paid', search: 'abc', page: 2 })
+    await adminMarketplaceService.listings('active', 3)
+    await adminMarketplaceService.listings()
+
+    expect(http.get).toHaveBeenCalledWith('/admin/marketplace/orders', { params: { limit: 20, status: 'paid', search: 'abc', page: 2 } })
+    expect(http.get).toHaveBeenCalledWith('/admin/marketplace/listings', { params: { limit: 20, page: 3, status: 'active' } })
+    expect(http.get).toHaveBeenCalledWith('/admin/marketplace/listings', { params: { limit: 20, page: 1 } })
+  })
+
+  it('takes a listing down with an optional reason', async () => {
+    http.post.mockResolvedValue({ data: { listing: { id: 'l1', status: 'removed' } } })
+
+    await adminMarketplaceService.removeListing('l1', 'Abuso')
+    await adminMarketplaceService.removeListing('l1')
+
+    expect(http.post).toHaveBeenCalledWith('/admin/marketplace/listings/l1/remove', { reason: 'Abuso' })
+    expect(http.post).toHaveBeenCalledWith('/admin/marketplace/listings/l1/remove', {})
   })
 })

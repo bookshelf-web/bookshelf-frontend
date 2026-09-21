@@ -8,6 +8,7 @@ import { CompanyFormPage } from './pages/CompanyFormPage'
 import { AdminCompaniesPage } from './pages/AdminCompaniesPage'
 import { AdminUsersPage } from './pages/AdminUsersPage'
 import { AdminCatalogPage } from './pages/AdminCatalogPage'
+import { AdminMarketplacePage } from './pages/AdminMarketplacePage'
 import { StorePage } from './pages/StorePage'
 import { CartPage } from './pages/CartPage'
 import { OrdersPage } from './pages/OrdersPage'
@@ -116,6 +117,14 @@ function App() {
         element={
           <RequireRole role="seller">
             <OrdersPage mode="sales" />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/admin/marketplace"
+        element={
+          <RequireRole role="admin">
+            <AdminMarketplacePage />
           </RequireRole>
         }
       />
